@@ -50,6 +50,9 @@ Window {
             TabButton {
                 text: qsTr("Advanced")
             }
+            TabButton {
+                text: qsTr("AI")
+            }
         }
 
         Frame {
@@ -69,6 +72,7 @@ Window {
                 SettingsTerminalTab { }
                 SettingsEffectsTab { }
                 SettingsAdvancedTab { }
+                SettingsAITab { }
             }
         }
     }

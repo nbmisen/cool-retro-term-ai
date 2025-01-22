@@ -26,6 +26,25 @@ QtObject {
     readonly property string dbMinorVersion: "1.0"
     property bool initialized: false
 
+    // AI Settings
+    property string aiBaseUrl: getSetting("aiBaseUrl") || "https://api.openai.com/v1"
+    onAiBaseUrlChanged: setSetting("aiBaseUrl", aiBaseUrl)
+
+    property string aiModelName: getSetting("aiModelName") || "gpt-4o"
+    onAiModelNameChanged: setSetting("aiModelName", aiModelName)
+
+    property string aiApiKey: getSetting("aiApiKey") || ""
+    onAiApiKeyChanged: setSetting("aiApiKey", aiApiKey)
+
+    property string aiSystemPrompt: getSetting("aiSystemPrompt") || ""
+    onAiSystemPromptChanged: setSetting("aiSystemPrompt", aiSystemPrompt)
+
+    property bool aiStreamOutput: {
+        var saved = getSetting("aiStreamOutput")
+        return saved === undefined ? true : saved === "true"
+    }
+    onAiStreamOutputChanged: setSetting("aiStreamOutput", aiStreamOutput)
+
     function getDatabase() {
          return LocalStorage.openDatabaseSync("coolretroterm" + dbMajorVersion, dbMinorVersion, "StorageDatabase", 100000)
     }
@@ -57,7 +76,7 @@ QtObject {
                 }
            }
       )
-      // The function returns “OK” if it was successful, or “Error” if it wasn't
+      // The function returns "OK" if it was successful, or "Error" if it wasn't
       return res
     }
 

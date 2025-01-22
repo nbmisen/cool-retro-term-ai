@@ -22,6 +22,7 @@
         <file>fonts/1971-ibm-3278/3270-Regular.ttf</file>
         <file>Storage.qml</file>
         <file>SettingsAdvancedTab.qml</file>
+        <file>SettingsAITab.qml</file>
         <file>TerminalContainer.qml</file>
         <file>images/crt256.png</file>
         <file>utils.js</file>
