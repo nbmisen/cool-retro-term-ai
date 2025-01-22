@@ -226,6 +226,7 @@ Item{
             } else {
                 var coord = correctDistortion(mouse.x, mouse.y);
                 kterminal.simulateMousePress(coord.x, coord.y, mouse.button, mouse.buttons, mouse.modifiers)
+                kterminal.forceActiveFocus()
             }
         }
         onReleased: {

@@ -152,10 +152,10 @@ ApplicationWindow {
             Layout.fillHeight: true
             Layout.preferredWidth: height * 4/3
             Layout.minimumWidth: 300
-
-            TerminalContainer {
-                id: terminalContainer
-                anchors.fill: parent
+            
+                TerminalContainer {
+                    id: terminalContainer
+                    anchors.fill: parent
             }
         }
 
