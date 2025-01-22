@@ -140,6 +140,14 @@ ApplicationWindow {
             aboutDialog.raise()
         }
     }
+    Action {
+        id: toggleAIPanelAction
+        text: qsTr("Open AI Panel")
+        shortcut: "Ctrl+Shift+A"
+        onTriggered: {
+            width = width + 300
+        }
+    }
     ApplicationSettings {
         id: appSettings
     }

@@ -59,6 +59,10 @@ MenuBar {
         MenuItem {
             action: zoomOut
         }
+        MenuSeparator {}
+        MenuItem {
+            action: toggleAIPanelAction
+        }
     }
     Menu {
         id: profilesMenu

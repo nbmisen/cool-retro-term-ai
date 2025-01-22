@@ -62,6 +62,12 @@ MenuBar {
             shortcut: "Meta+-"
             onTriggered: zoomOut.trigger()
         }
+        MenuSeparator {}
+        MenuItem {
+            text: toggleAIPanelAction.text
+            shortcut: toggleAIPanelAction.shortcut
+            onTriggered: toggleAIPanelAction.trigger()
+        }
     }
     Menu {
         id: profilesMenu
