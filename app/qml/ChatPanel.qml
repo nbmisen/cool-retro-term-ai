@@ -1,42 +1,18 @@
 import QtQuick 2.2
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.3
+import QtGraphicalEffects 1.15
 
 Rectangle {
     id: root
-    color: "#2b2b2b"
-
-    // Add markdown to html conversion function
-    function markdownToHtml(text) {
-        if (!text) return "";
-        
-        // Convert code blocks
-        text = text.replace(/```([^`]+)```/g, '<pre style="background-color: #363636; padding: 8px; border-radius: 4px;"><code>$1</code></pre>');
-        
-        // Convert inline code
-        text = text.replace(/`([^`]+)`/g, '<code style="background-color: #363636; padding: 2px 4px; border-radius: 2px;">$1</code>');
-        
-        // Convert bold
-        text = text.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
-        
-        // Convert italic
-        text = text.replace(/\*([^*]+)\*/g, '<i>$1</i>');
-        
-        // Convert links
-        text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #58a6ff;">$1</a>');
-        
-        // Convert bullet lists
-        text = text.replace(/^\s*-\s+(.+)$/gm, '• $1');
-        
-        // Convert headers
-        text = text.replace(/^### (.+)$/gm, '<h3 style="margin: 4px 0;">$1</h3>');
-        text = text.replace(/^## (.+)$/gm, '<h2 style="margin: 6px 0;">$1</h2>');
-        text = text.replace(/^# (.+)$/gm, '<h1 style="margin: 8px 0;">$1</h1>');
-        
-        // Convert newlines to <br>
-        text = text.replace(/\n/g, '<br>');
-        
-        return text;
+    color: "#1e1e1e"
+    radius: 12
+    layer.enabled: true
+    layer.effect: DropShadow {
+        color: "#40000000"
+        radius: 12
+        samples: 25
+        verticalOffset: 4
     }
 
     signal settingsClicked()
@@ -61,7 +37,7 @@ Rectangle {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: 10
+        anchors.margins: 16
 
         RowLayout {
             Layout.fillWidth: true
@@ -69,6 +45,7 @@ Rectangle {
 
             Label {
                 text: qsTr("AI Chat")
+                visible: false
                 color: "white"
                 font.pixelSize: 16
                 font.bold: true
@@ -77,7 +54,32 @@ Rectangle {
             Item { Layout.fillWidth: true }
 
             Button {
-                text: qsTr("Clear")
+                text: ""
+                flat: true
+                icon.source: "qrc:/icons/clear.png"
+                icon.color: "white"
+                padding: 0
+                implicitHeight: 40
+                implicitWidth: 40
+                contentItem: Item {
+                    Image { 
+                        id: clearIcon
+                        source: parent.parent.icon.source
+                        width: 24
+                        height: 24
+                        anchors.centerIn: parent
+                        visible: false
+                    }
+                    ColorOverlay {
+                        anchors.fill: clearIcon
+                        source: clearIcon
+                        color: "#e1e1e1"
+                    }
+                }
+                background: Rectangle {
+                    color: "transparent"
+                    radius: 4
+                }
                 onClicked: {
                     chatView.model.clear()
                     aiChat.clearHistory()
@@ -85,7 +87,32 @@ Rectangle {
             }
 
             Button {
-                text: qsTr("Settings")
+                text: ""
+                flat: true
+                icon.source: "qrc:/icons/settings.png"
+                icon.color: "white"
+                padding: 0
+                implicitHeight: 40
+                implicitWidth: 40
+                contentItem: Item {
+                    Image { 
+                        id: settingsIcon
+                        source: parent.parent.icon.source
+                        width: 24
+                        height: 24
+                        anchors.centerIn: parent
+                        visible: false
+                    }
+                    ColorOverlay {
+                        anchors.fill: settingsIcon
+                        source: settingsIcon
+                        color: "#e1e1e1"
+                    }
+                }
+                background: Rectangle {
+                    color: "transparent"
+                    radius: 4
+                }
                 onClicked: root.settingsClicked()
             }
         }
@@ -99,34 +126,36 @@ Rectangle {
             model: ListModel {}
             delegate: Rectangle {
                 width: chatView.width
-                height: messageText.height + 20
-                color: model.isUser ? "#3b3b3b" : "#2b2b2b"
-                radius: 4
+                height: messageText.height + 24
+                color: model.isUser ? "#404040" : "#2d2d30"
+                radius: 8
+                layer.enabled: true
+                layer.effect: DropShadow {
+                    color: "#20000000"
+                    radius: 6
+                    samples: 13
+                    verticalOffset: 2
+                }
                 
                 TextEdit {
                     id: messageText
-                    text: markdownToHtml(model.message)
-                    color: "white"
-                    width: parent.width - 20
+                    text: model.message
+                    color: model.isUser ? "white" : "#e1e1e1"
+                    width: parent.width - 24
                     anchors.centerIn: parent
                     wrapMode: Text.WordWrap
-                    font.pixelSize: 14
-                    textFormat: Text.RichText
-                    readOnly: true
+                    font.pixelSize: 15
+                    textFormat: Text.PlainText
                     selectByMouse: true
                     selectedTextColor: "white"
                     selectionColor: "#666666"
                     mouseSelectionMode: TextEdit.SelectCharacters
-                    persistentSelection: true
+                    persistentSelection: false
 
-                    // 添加键盘快捷键
-                    Keys.onPressed: function(event) {
-                        if ((event.key === Qt.Key_C) && (event.modifiers & Qt.ControlModifier || event.modifiers & Qt.MetaModifier)) {
-                            messageText.copy();
-                            event.accepted = true;
-                        } else if ((event.key === Qt.Key_A) && (event.modifiers & Qt.ControlModifier || event.modifiers & Qt.MetaModifier)) {
-                            messageText.selectAll();
-                            event.accepted = true;
+                    // 防止用户直接编辑
+                    onTextChanged: {
+                        if (text !== model.message) {
+                            text = model.message
                         }
                     }
 
@@ -137,8 +166,7 @@ Rectangle {
                             text: qsTr("Copy")
                             enabled: messageText.selectedText
                             onTriggered: {
-                                messageText.copy()
-                                messageText.deselect()
+                                messageText.copy();
                             }
                         }
                         MenuItem {
@@ -150,11 +178,13 @@ Rectangle {
                     MouseArea {
                         anchors.fill: parent
                         acceptedButtons: Qt.RightButton
+                        hoverEnabled: true
                         onClicked: {
                             if (mouse.button === Qt.RightButton)
                                 contextMenu.popup()
                         }
                         onPressAndHold: contextMenu.popup()
+                        cursorShape: Qt.IBeamCursor
                     }
                 }
             }
@@ -169,13 +199,18 @@ Rectangle {
             TextField {
                 id: messageInput
                 Layout.fillWidth: true
+                Layout.preferredHeight: 40
                 placeholderText: qsTr("Type your message...")
+                placeholderTextColor: "#888"
                 color: "white"
                 enabled: !aiChat.isProcessing
                 selectByMouse: true
+                font.pixelSize: 15
                 background: Rectangle {
-                    color: "#3b3b3b"
-                    radius: 4
+                    color: "#2d2d30"
+                    radius: 8
+                    border.color: "#404040"
+                    border.width: 1
                 }
 
                 // 添加键盘快捷键
@@ -199,16 +234,108 @@ Rectangle {
                 }
             }
 
-            BusyIndicator {
-                visible: aiChat.isProcessing
-                running: visible
-                width: 32
-                height: 32
-            }
 
             Button {
-                text: qsTr("Send")
+                id: sendButton
+                text: ""
+                flat: true
+                icon.source: "qrc:/icons/send.png"
+                icon.color: "white"
+                padding: 0
+                implicitHeight: 44
+                implicitWidth: 44
                 enabled: !aiChat.isProcessing && messageInput.text.trim() !== ""
+                
+                states: [
+                    State {
+                        name: "loading"
+                        when: aiChat.isProcessing
+                        PropertyChanges {
+                            target: sendIcon
+                            opacity: 0
+                        }
+                        PropertyChanges {
+                            target: loadingIndicator
+                            opacity: 1
+                        }
+                    },
+                    State {
+                        name: "disabled"
+                        when: !aiChat.isProcessing && messageInput.text.trim() === ""
+                        PropertyChanges {
+                            target: sendIcon
+                            opacity: 1
+                        }
+                        PropertyChanges {
+                            target: iconOverlay
+                            color: "#888"
+                        }
+                        PropertyChanges {
+                            target: loadingIndicator
+                            opacity: 0
+                        }
+                    },
+                    State {
+                        name: "enabled"
+                        when: !aiChat.isProcessing && messageInput.text.trim() !== ""
+                        PropertyChanges {
+                            target: sendIcon
+                            opacity: 1
+                        }
+                        PropertyChanges {
+                            target: iconOverlay
+                            color: "#e1e1e1"
+                        }
+                        PropertyChanges {
+                            target: loadingIndicator
+                            opacity: 0
+                        }
+                    }
+                ]
+                
+                transitions: [
+                    Transition {
+                        from: "*"; to: "*"
+                        NumberAnimation {
+                            properties: "opacity,color"
+                            duration: 200
+                            easing.type: Easing.InOutQuad
+                        }
+                    }
+                ]
+
+                contentItem: Item {
+                    Image { 
+                        id: sendIcon
+                        source: parent.parent.icon.source
+                        width: 24
+                        height: 24
+                        anchors.centerIn: parent
+                        visible: false
+                    }
+                    ColorOverlay {
+                        id: iconOverlay
+                        anchors.fill: sendIcon
+                        source: sendIcon
+                        color: "#e1e1e1"
+                    }
+
+                    BusyIndicator {
+                        id: loadingIndicator
+                        anchors.centerIn: parent
+                        width: 24
+                        height: 24
+                        running: aiChat.isProcessing
+                        opacity: 0
+                        palette.dark: "#888888"
+                    }
+                }
+                
+                background: Rectangle {
+                    color: "transparent"
+                    radius: 8
+                }
+                
                 onClicked: messageInput.accepted()
             }
         }
