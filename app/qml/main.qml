@@ -19,15 +19,17 @@
 *******************************************************************************/
 import QtQuick 2.2
 import QtQuick.Window 2.1
-import QtQuick.Controls 2.3
+import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.3
+import QtQuick.Controls.Material 2.15
 
 import "menus"
 
 ApplicationWindow {
     id: terminalWindow
 
-    width: 1024
-    height: 768
+    width: 1280
+    height: 720
 
     // Save window properties automatically
     onXChanged: appSettings.x = x
@@ -140,10 +142,33 @@ ApplicationWindow {
     ApplicationSettings {
         id: appSettings
     }
-    TerminalContainer {
-        id: terminalContainer
-        width: parent.width
-        height: (parent.height + Math.abs(y))
+
+    RowLayout {
+        anchors.fill: parent
+        spacing: 0
+
+        Item {
+            id: terminalWrapper
+            Layout.fillHeight: true
+            Layout.preferredWidth: height * 4/3
+            Layout.minimumWidth: 300
+
+            TerminalContainer {
+                id: terminalContainer
+                anchors.fill: parent
+            }
+        }
+
+        ChatPanel {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.minimumWidth: 200
+            onSettingsClicked: {
+                settingswindow.show()
+                settingswindow.requestActivate()
+                settingswindow.raise()
+            }
+        }
     }
     SettingsWindow {
         id: settingswindow
