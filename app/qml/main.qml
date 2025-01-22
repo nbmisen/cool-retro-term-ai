@@ -29,8 +29,8 @@ import "menus"
 ApplicationWindow {
     id: terminalWindow
 
-    width: 1280
-    height: 720
+    width: 1024
+    height: 768
 
     // Save window properties automatically
     onXChanged: appSettings.x = x
