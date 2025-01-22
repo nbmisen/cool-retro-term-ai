@@ -27,6 +27,9 @@ import "Components"
 ColumnLayout {
     id: root
 
+    // Add reference to storage
+    property var storage: appSettings.storage
+
     GroupBox {
         Layout.fillWidth: true
         title: qsTr("AI Model Settings")
@@ -42,7 +45,10 @@ ColumnLayout {
                 id: baseUrlField
                 Layout.fillWidth: true
                 text: appSettings.aiBaseUrl
-                onEditingFinished: appSettings.aiBaseUrl = text
+                onEditingFinished: {
+                    storage.setSetting("aiBaseUrl", text)
+                    appSettings.aiBaseUrl = text
+                }
                 placeholderText: "https://api.openai.com/v1"
             }
 
@@ -53,7 +59,10 @@ ColumnLayout {
                 id: modelNameField
                 Layout.fillWidth: true
                 text: appSettings.aiModelName
-                onEditingFinished: appSettings.aiModelName = text
+                onEditingFinished: {
+                    storage.setSetting("aiModelName", text)
+                    appSettings.aiModelName = text
+                }
                 placeholderText: "gpt-4o"
             }
 
@@ -65,7 +74,10 @@ ColumnLayout {
                 Layout.fillWidth: true
                 text: appSettings.aiApiKey
                 echoMode: TextInput.Password
-                onEditingFinished: appSettings.aiApiKey = text
+                onEditingFinished: {
+                    storage.setSetting("aiApiKey", text)
+                    appSettings.aiApiKey = text
+                }
                 placeholderText: "sk-..."
             }
         }
@@ -82,7 +94,10 @@ ColumnLayout {
                 id: streamOutput
                 text: qsTr("Enable streaming output")
                 checked: appSettings.aiStreamOutput
-                onCheckedChanged: appSettings.aiStreamOutput = checked
+                onCheckedChanged: {
+                    storage.setSetting("aiStreamOutput", checked.toString())
+                    appSettings.aiStreamOutput = checked
+                }
             }
 
             Label {
@@ -93,7 +108,10 @@ ColumnLayout {
                 Layout.fillWidth: true
                 text: appSettings.aiSystemPrompt
                 wrapMode: TextEdit.Wrap
-                onEditingFinished: appSettings.aiSystemPrompt = text
+                onEditingFinished: {
+                    storage.setSetting("aiSystemPrompt", text)
+                    appSettings.aiSystemPrompt = text
+                }
                 placeholderText: "Enter system prompt here..."
             }
         }

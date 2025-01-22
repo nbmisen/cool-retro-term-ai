@@ -38,19 +38,10 @@ QtObject {
 
     // AI SETTINGS /////////////////////////////////////////////////////////////
     property string aiBaseUrl: storage.getSetting("aiBaseUrl", "https://api.openai.com/v1")
-    onAiBaseUrlChanged: storage.setSetting("aiBaseUrl", aiBaseUrl)
-
     property string aiModelName: storage.getSetting("aiModelName", "gpt-4o")
-    onAiModelNameChanged: storage.setSetting("aiModelName", aiModelName)
-
     property string aiApiKey: storage.getSetting("aiApiKey", "")
-    onAiApiKeyChanged: storage.setSetting("aiApiKey", aiApiKey)
-
     property string aiSystemPrompt: storage.getSetting("aiSystemPrompt", "")
-    onAiSystemPromptChanged: storage.setSetting("aiSystemPrompt", aiSystemPrompt)
-
-    property bool aiStreamOutput: storage.getSetting("aiStreamOutput", "true") === "true"
-    onAiStreamOutputChanged: storage.setSetting("aiStreamOutput", aiStreamOutput.toString())
+    property bool aiStreamOutput: storage.getSetting("aiStreamOutput", "false") === "true"
 
     // GENERAL SETTINGS ///////////////////////////////////////////////////////
     property int x: 100
@@ -755,6 +746,8 @@ QtObject {
         if (args.indexOf("-T") !== -1) {
             wintitle = args[args.indexOf("-T") + 1]
         }
+
+        aiSystemPrompt = storage.getSetting("aiSystemPrompt", "")
 
         initializedSettings()
     }
