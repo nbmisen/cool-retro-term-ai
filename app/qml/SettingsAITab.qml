@@ -25,6 +25,8 @@ import QtQml 2.0
 import "Components"
 
 ColumnLayout {
+    id: root
+
     GroupBox {
         Layout.fillWidth: true
         title: qsTr("AI Model Settings")
@@ -42,11 +44,6 @@ ColumnLayout {
                 text: appSettings.aiBaseUrl
                 onEditingFinished: appSettings.aiBaseUrl = text
                 placeholderText: "https://api.openai.com/v1"
-
-                function saveSetting() {
-                    appSettings.aiBaseUrl = text
-                }
-                Component.onCompleted: settings_window.closing.connect(saveSetting)
             }
 
             Label {
@@ -58,11 +55,6 @@ ColumnLayout {
                 text: appSettings.aiModelName
                 onEditingFinished: appSettings.aiModelName = text
                 placeholderText: "gpt-4o"
-
-                function saveSetting() {
-                    appSettings.aiModelName = text
-                }
-                Component.onCompleted: settings_window.closing.connect(saveSetting)
             }
 
             Label {
@@ -75,11 +67,6 @@ ColumnLayout {
                 echoMode: TextInput.Password
                 onEditingFinished: appSettings.aiApiKey = text
                 placeholderText: "sk-..."
-
-                function saveSetting() {
-                    appSettings.aiApiKey = text
-                }
-                Component.onCompleted: settings_window.closing.connect(saveSetting)
             }
         }
     }
@@ -108,11 +95,6 @@ ColumnLayout {
                 wrapMode: TextEdit.Wrap
                 onEditingFinished: appSettings.aiSystemPrompt = text
                 placeholderText: "Enter system prompt here..."
-
-                function saveSetting() {
-                    appSettings.aiSystemPrompt = text
-                }
-                Component.onCompleted: settings_window.closing.connect(saveSetting)
             }
         }
     }

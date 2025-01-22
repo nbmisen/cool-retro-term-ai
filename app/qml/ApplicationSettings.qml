@@ -36,6 +36,22 @@ QtObject {
 
     property bool isMacOS: Qt.platform.os === "osx"
 
+    // AI SETTINGS /////////////////////////////////////////////////////////////
+    property string aiBaseUrl: storage.getSetting("aiBaseUrl", "https://api.openai.com/v1")
+    onAiBaseUrlChanged: storage.setSetting("aiBaseUrl", aiBaseUrl)
+
+    property string aiModelName: storage.getSetting("aiModelName", "gpt-4o")
+    onAiModelNameChanged: storage.setSetting("aiModelName", aiModelName)
+
+    property string aiApiKey: storage.getSetting("aiApiKey", "")
+    onAiApiKeyChanged: storage.setSetting("aiApiKey", aiApiKey)
+
+    property string aiSystemPrompt: storage.getSetting("aiSystemPrompt", "")
+    onAiSystemPromptChanged: storage.setSetting("aiSystemPrompt", aiSystemPrompt)
+
+    property bool aiStreamOutput: storage.getSetting("aiStreamOutput", "true") === "true"
+    onAiStreamOutputChanged: storage.setSetting("aiStreamOutput", aiStreamOutput.toString())
+
     // GENERAL SETTINGS ///////////////////////////////////////////////////////
     property int x: 100
     property int y: 100
