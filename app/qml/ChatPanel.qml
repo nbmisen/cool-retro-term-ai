@@ -51,6 +51,38 @@ Rectangle {
                 font.bold: true
             }
 
+            Button {
+                text: ""
+                flat: true
+                icon.source: "qrc:/icons/collapse.png"
+                icon.color: "white"
+                padding: 0
+                implicitHeight: 40
+                implicitWidth: 40
+                contentItem: Item {
+                    Image { 
+                        id: collapseIcon
+                        source: parent.parent.icon.source
+                        width: 24
+                        height: 24
+                        anchors.centerIn: parent
+                        visible: false
+                    }
+                    ColorOverlay {
+                        anchors.fill: collapseIcon
+                        source: collapseIcon
+                        color: "#e1e1e1"
+                    }
+                }
+                background: Rectangle {
+                    color: "transparent"
+                    radius: 4
+                }
+                onClicked: {
+                    terminalWindow.width = terminalWindow.height * 4/3
+                }
+            }
+
             Item { Layout.fillWidth: true }
 
             Button {
