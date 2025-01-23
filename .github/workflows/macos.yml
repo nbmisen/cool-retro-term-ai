@@ -1,0 +1,33 @@
+name: "macOS Build"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  macos:
+    runs-on: macos-14
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Install dependencies
+      run: |
+        brew install qt@5
+        brew link qt@5 --force
+        echo "/opt/homebrew/opt/qt@5/bin" >> "$GITHUB_PATH"
+
+    - name: Build project
+      run: |
+        qmake -config release
+        make -j$(sysctl -n hw.logicalcpu)
+        mkdir cool-retro-term.app/Contents/PlugIns
+        cp -r qmltermwidget/QMLTermWidget cool-retro-term.app/Contents/PlugIns
+        macdeployqt cool-retro-term.app -qmldir=app/qml -dmg
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        path: cool-retro-term.dmg
