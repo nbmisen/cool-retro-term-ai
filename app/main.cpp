@@ -16,6 +16,7 @@
 
 #include <fileio.h>
 #include <monospacefontmanager.h>
+#include <aichatmanager.h>
 
 QString getNamedArgument(QStringList args, QString name, QString defaultName)
 {
@@ -75,6 +76,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     FileIO fileIO;
     MonospaceFontManager monospaceFontManager;
+    AIChatManager aiChatManager;
 
 #if !defined(Q_OS_MAC)
     app.setWindowIcon(QIcon::fromTheme("cool-retro-term", QIcon(":../icons/32x32/cool-retro-term.png")));
@@ -104,6 +106,10 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("monospaceSystemFonts", monospaceFontManager.retrieveMonospaceFonts());
 
     engine.rootContext()->setContextProperty("devicePixelRatio", app.devicePixelRatio());
+
+    // Register AIChatManager type to QML
+    qmlRegisterType<AIChatManager>("CoolRetroTerm", 1, 0, "AIChatManager");
+    engine.rootContext()->setContextProperty("aiChatManager", &aiChatManager);
 
     // Manage import paths for Linux and OSX.
     QStringList importPathList = engine.importPathList();

@@ -1,15 +1,17 @@
-QT += qml quick widgets sql quickcontrols2
+QT += qml quick widgets sql quickcontrols2 network
 TARGET = cool-retro-term 
 
 DESTDIR = $$OUT_PWD/../
 
 HEADERS += \
     fileio.h \
-    monospacefontmanager.h
+    monospacefontmanager.h \
+    aichatmanager.h
 
 SOURCES = main.cpp \
     fileio.cpp \
-    monospacefontmanager.cpp
+    monospacefontmanager.cpp \
+    aichatmanager.cpp
 
 macx:ICON = icons/crt.icns
 
