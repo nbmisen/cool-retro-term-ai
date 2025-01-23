@@ -108,7 +108,7 @@ ColumnLayout {
                 Layout.fillWidth: true
                 text: appSettings.aiSystemPrompt
                 wrapMode: TextEdit.Wrap
-                onEditingFinished: {
+                onTextChanged: {
                     storage.setSetting("aiSystemPrompt", text)
                     appSettings.aiSystemPrompt = text
                 }
