@@ -6,7 +6,7 @@ import QtGraphicalEffects 1.15
 Rectangle {
     id: root
     color: "#1e1e1e"
-    radius: 12
+    radius: 0
     layer.enabled: true
     layer.effect: DropShadow {
         color: "#40000000"
@@ -31,6 +31,21 @@ Rectangle {
                 message: "❌ " + error,
                 isUser: false
             })
+            chatView.positionViewAtEnd()
+        }
+        onStreamUpdate: function(content) {
+            // 如果是第一个流式片段，创建新的消息项
+            if (chatView.model.count === 0 || chatView.model.get(chatView.model.count - 1).isUser) {
+                chatView.model.append({
+                    message: content,
+                    isUser: false
+                })
+            } else {
+                // 否则更新最后一条消息
+                var lastIndex = chatView.model.count - 1
+                var currentMessage = chatView.model.get(lastIndex).message
+                chatView.model.setProperty(lastIndex, "message", currentMessage + content)
+            }
             chatView.positionViewAtEnd()
         }
     }
@@ -368,7 +383,17 @@ Rectangle {
                     radius: 8
                 }
                 
-                onClicked: messageInput.accepted()
+                onClicked: {
+                    if (messageInput.text.trim() !== "") {
+                        chatView.model.append({
+                            message: messageInput.text,
+                            isUser: true
+                        })
+                        chatView.positionViewAtEnd()
+                        aiChat.sendMessage(messageInput.text)
+                        messageInput.text = ""
+                    }
+                }
             }
         }
     }

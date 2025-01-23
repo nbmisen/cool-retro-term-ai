@@ -90,15 +90,15 @@ ColumnLayout {
         ColumnLayout {
             anchors.fill: parent
 
-            CheckBox {
-                id: streamOutput
-                text: qsTr("Enable streaming output")
-                checked: appSettings.aiStreamOutput
-                onCheckedChanged: {
-                    storage.setSetting("aiStreamOutput", checked.toString())
-                    appSettings.aiStreamOutput = checked
-                }
-            }
+            // CheckBox {
+            //     id: streamOutput
+            //     text: qsTr("Enable streaming output")
+            //     checked: appSettings.aiStreamOutput
+            //     onCheckedChanged: {
+            //         storage.setSetting("aiStreamOutput", checked.toString())
+            //         appSettings.aiStreamOutput = checked
+            //     }
+            // }
 
             Label {
                 text: qsTr("System Prompt")
