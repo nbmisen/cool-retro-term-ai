@@ -20,6 +20,9 @@ Based on "cool-retro-term" with added AI capabilities
 ### AI Chat Panel
 ![AI Chat Panel](screenshots/ai-chat-panel.png)
 
+### Loading AI Chat Panel
+![Loading AI Chat Panel](screenshots/loading-ai-chat-panel.png)
+
 ### Settings Panel
 ![Settings Panel](screenshots/settings-panel.png)
 
