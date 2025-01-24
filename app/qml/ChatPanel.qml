@@ -22,31 +22,38 @@ Rectangle {
         onMessageReceived: function(message) {
             chatView.model.append({
                 message: message,
-                isUser: false
+                isUser: false,
+                isMarkdown: true
             })
             chatView.positionViewAtEnd()
         }
         onErrorOccurred: function(error) {
             chatView.model.append({
                 message: "❌ " + error,
-                isUser: false
+                isUser: false,
+                isMarkdown: true
             })
             chatView.positionViewAtEnd()
         }
         onStreamUpdate: function(content) {
-            // 如果是第一个流式片段，创建新的消息项
             if (chatView.model.count === 0 || chatView.model.get(chatView.model.count - 1).isUser) {
                 chatView.model.append({
                     message: content,
-                    isUser: false
+                    isUser: false,
+                    isMarkdown: false
                 })
             } else {
-                // 否则更新最后一条消息
                 var lastIndex = chatView.model.count - 1
                 var currentMessage = chatView.model.get(lastIndex).message
                 chatView.model.setProperty(lastIndex, "message", currentMessage + content)
             }
             chatView.positionViewAtEnd()
+        }
+        onStreamEnd: function() {
+            if (chatView.model.count > 0) {
+                var lastIndex = chatView.model.count - 1
+                chatView.model.setProperty(lastIndex, "isMarkdown", true)
+            }
         }
     }
 
@@ -193,7 +200,7 @@ Rectangle {
                     anchors.centerIn: parent
                     wrapMode: Text.WordWrap
                     font.pixelSize: 15
-                    textFormat: Text.PlainText
+                    textFormat: model.isMarkdown ? Text.MarkdownText : Text.PlainText
                     selectByMouse: true
                     selectedTextColor: "white"
                     selectionColor: "#666666"

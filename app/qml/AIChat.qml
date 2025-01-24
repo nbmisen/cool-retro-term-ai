@@ -12,6 +12,7 @@ Item {
     signal messageReceived(string message)
     signal errorOccurred(string error)
     signal streamUpdate(string content)
+    signal streamEnd()
 
     property bool isProcessing: aiManager.isProcessing
     property var messageHistory: aiManager.messageHistory
@@ -21,6 +22,7 @@ Item {
         onMessageReceived: root.messageReceived(message)
         onErrorOccurred: root.errorOccurred(error)
         onStreamUpdate: root.streamUpdate(content)
+        onStreamEnd: root.streamEnd()
     }
 
     function sendMessage(message) {

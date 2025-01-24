@@ -94,7 +94,10 @@ void AIChatManager::processStreamData(const QByteArray &data)
         QString trimmedLine = line.trimmed();
         if (trimmedLine.startsWith("data: ")) {
             QString jsonStr = trimmedLine.mid(6);
-            if (jsonStr == "[DONE]") continue;
+            if (jsonStr == "[DONE]") {
+                emit streamEnd();
+                continue;
+            }
 
             QJsonDocument doc = QJsonDocument::fromJson(jsonStr.toUtf8());
             if (doc.isObject()) {

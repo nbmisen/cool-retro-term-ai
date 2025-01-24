@@ -32,6 +32,7 @@ signals:
     void messageReceived(const QString &message);
     void errorOccurred(const QString &error);
     void streamUpdate(const QString &content);
+    void streamEnd();
     void isProcessingChanged();
     void messageHistoryChanged();
 
