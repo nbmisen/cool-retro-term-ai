@@ -19,7 +19,10 @@ Rectangle {
 
     AIChat {
         id: aiChat
+        property string currentStreamContent: ""
+        
         onMessageReceived: function(message) {
+            console.log("[onMessageReceived] Adding message with isMarkdown: true")
             chatView.model.append({
                 message: message,
                 isUser: false,
@@ -28,6 +31,7 @@ Rectangle {
             chatView.positionViewAtEnd()
         }
         onErrorOccurred: function(error) {
+            console.log("[onErrorOccurred] Adding error message with isMarkdown: true")
             chatView.model.append({
                 message: "❌ " + error,
                 isUser: false,
@@ -36,23 +40,19 @@ Rectangle {
             chatView.positionViewAtEnd()
         }
         onStreamUpdate: function(content) {
-            if (chatView.model.count === 0 || chatView.model.get(chatView.model.count - 1).isUser) {
-                chatView.model.append({
-                    message: content,
-                    isUser: false,
-                    isMarkdown: false
-                })
-            } else {
-                var lastIndex = chatView.model.count - 1
-                var currentMessage = chatView.model.get(lastIndex).message
-                chatView.model.setProperty(lastIndex, "message", currentMessage + content)
-            }
-            chatView.positionViewAtEnd()
+            console.log("[onStreamUpdate] Accumulating stream content")
+            currentStreamContent += content
         }
         onStreamEnd: function() {
-            if (chatView.model.count > 0) {
-                var lastIndex = chatView.model.count - 1
-                chatView.model.setProperty(lastIndex, "isMarkdown", true)
+            console.log("[onStreamEnd] Adding accumulated content with isMarkdown: true")
+            if (currentStreamContent !== "") {
+                chatView.model.append({
+                    message: currentStreamContent,
+                    isUser: false,
+                    isMarkdown: true
+                })
+                chatView.positionViewAtEnd()
+                currentStreamContent = ""
             }
         }
     }
@@ -195,12 +195,12 @@ Rectangle {
                 TextEdit {
                     id: messageText
                     text: model.message
+                    textFormat: Text.MarkdownText
                     color: model.isUser ? "white" : "#e1e1e1"
                     width: parent.width - 24
                     anchors.centerIn: parent
                     wrapMode: Text.WordWrap
                     font.pixelSize: 15
-                    textFormat: model.isMarkdown ? Text.MarkdownText : Text.PlainText
                     selectByMouse: true
                     selectedTextColor: "white"
                     selectionColor: "#666666"
