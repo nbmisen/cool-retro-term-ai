@@ -66,6 +66,7 @@ Rectangle {
     Item {
         id: borderEffect
         anchors.fill: parent
+        anchors.margins: 4  // 增加边距，使边框更靠内
         z: 1
         visible: aiChat.isProcessing  // 只在处理时显示
 
@@ -174,18 +175,44 @@ Rectangle {
             }
         }
 
-        // 发光效果同时混合两层渐变的颜色
+        // 修改发光效果
         layer.enabled: true
-        layer.effect: Glow {
-            samples: 8
-            radius: 6
-            color: Qt.rgba(
-                (gradientBorder.currentColor.r + secondGradient.currentColor.r) / 2,
-                (gradientBorder.currentColor.g + secondGradient.currentColor.g) / 2,
-                (gradientBorder.currentColor.b + secondGradient.currentColor.b) / 2,
-                0.8
-            )
-            spread: 0.3
+        layer.effect: Item {
+            property real glowRadius: 16  // 增加发光半径
+
+            Rectangle {
+                id: maskRect
+                anchors.fill: parent
+                color: "transparent"
+                border.width: 2
+                radius: 2
+            }
+
+            Glow {
+                anchors.fill: parent
+                source: maskRect
+                samples: 20  // 增加采样数
+                radius: parent.glowRadius
+                color: Qt.rgba(
+                    (gradientBorder.currentColor.r + secondGradient.currentColor.r) / 2,
+                    (gradientBorder.currentColor.g + secondGradient.currentColor.g) / 2,
+                    (gradientBorder.currentColor.b + secondGradient.currentColor.b) / 2,
+                    0.8  // 增加不透明度
+                )
+                spread: 0.5
+                cached: true
+
+                layer.enabled: true
+                layer.effect: OpacityMask {
+                    maskSource: Rectangle {
+                        width: maskRect.width
+                        height: maskRect.height
+                        color: "white"
+                        border.width: parent.parent.radius * 2
+                        radius: maskRect.radius
+                    }
+                }
+            }
         }
     }
 
@@ -450,7 +477,7 @@ Rectangle {
             TextArea {
                 id: messageInput
                 Layout.fillWidth: true
-                Layout.preferredHeight: 44
+                Layout.preferredHeight: Math.min(contentHeight + 20, 200)
                 placeholderText: qsTr("Type your message...")
                 placeholderTextColor: "#888"
                 color: "white"
@@ -458,7 +485,10 @@ Rectangle {
                 selectByMouse: true
                 wrapMode: TextArea.Wrap
                 font.pixelSize: 15
-                padding: 10
+                topPadding: (height - contentHeight) / 2
+                bottomPadding: (height - contentHeight) / 2
+                leftPadding: 10
+                rightPadding: 10
                 verticalAlignment: TextArea.AlignVCenter
 
                 background: Rectangle {
@@ -525,11 +555,11 @@ Rectangle {
                         when: aiChat.isProcessing
                         PropertyChanges {
                             target: sendIcon
-                            opacity: 0
+                            opacity: 0.5
                         }
                         PropertyChanges {
-                            target: loadingIndicator
-                            opacity: 1
+                            target: iconOverlay
+                            color: "#888"
                         }
                     },
                     State {
@@ -543,10 +573,6 @@ Rectangle {
                             target: iconOverlay
                             color: "#888"
                         }
-                        PropertyChanges {
-                            target: loadingIndicator
-                            opacity: 0
-                        }
                     },
                     State {
                         name: "enabled"
@@ -558,10 +584,6 @@ Rectangle {
                         PropertyChanges {
                             target: iconOverlay
                             color: "#e1e1e1"
-                        }
-                        PropertyChanges {
-                            target: loadingIndicator
-                            opacity: 0
                         }
                     }
                 ]
@@ -591,16 +613,6 @@ Rectangle {
                         anchors.fill: sendIcon
                         source: sendIcon
                         color: "#e1e1e1"
-                    }
-
-                    BusyIndicator {
-                        id: loadingIndicator
-                        anchors.centerIn: parent
-                        width: 24
-                        height: 24
-                        running: aiChat.isProcessing
-                        opacity: 0
-                        palette.dark: "#888888"
                     }
                 }
                 
