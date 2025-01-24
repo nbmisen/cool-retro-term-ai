@@ -208,7 +208,7 @@ Rectangle {
                         width: maskRect.width
                         height: maskRect.height
                         color: "white"
-                        border.width: parent.parent.radius * 2
+                        border.width: parent.radius * 2
                         radius: maskRect.radius
                     }
                 }
