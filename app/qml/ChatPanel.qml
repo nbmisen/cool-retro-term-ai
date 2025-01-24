@@ -62,6 +62,141 @@ Rectangle {
         }
     }
 
+    // 修改渐变边框效果
+    Item {
+        id: borderEffect
+        anchors.fill: parent
+        z: 1
+        visible: aiChat.isProcessing  // 只在处理时显示
+
+        Rectangle {
+            id: gradientMask
+            anchors.fill: parent
+            color: "transparent"
+            border.width: 2
+            radius: 2
+
+            // 第一层渐变
+            LinearGradient {
+                id: gradientBorder
+                anchors.fill: parent
+                visible: true
+                source: gradientMask
+                
+                start: Qt.point(0, 0)
+                end: Qt.point(borderEffect.width, borderEffect.height)
+                
+                property color currentColor: Qt.rgba(0.8, 0.2, 0.2, 0.8)
+                
+                gradient: Gradient {
+                    GradientStop { 
+                        position: 0.0
+                        color: gradientBorder.currentColor
+                        SequentialAnimation on color {
+                            loops: Animation.Infinite
+                            ColorAnimation { 
+                                to: Qt.rgba(0.2, 0.8, 0.2, 0.8)
+                                duration: 1000  // 从2000改为1000
+                                onRunningChanged: if(running) gradientBorder.currentColor = Qt.rgba(0.2, 0.8, 0.2, 0.8)
+                            }
+                            ColorAnimation { 
+                                to: Qt.rgba(0.2, 0.2, 0.8, 0.8)
+                                duration: 1000  // 从2000改为1000
+                                onRunningChanged: if(running) gradientBorder.currentColor = Qt.rgba(0.2, 0.2, 0.8, 0.8)
+                            }
+                            ColorAnimation { 
+                                to: Qt.rgba(0.8, 0.2, 0.2, 0.8)
+                                duration: 1000  // 从2000改为1000
+                                onRunningChanged: if(running) gradientBorder.currentColor = Qt.rgba(0.8, 0.2, 0.2, 0.8)
+                            }
+                        }
+                    }
+                    GradientStop { 
+                        position: 1.0
+                        color: Qt.rgba(0.2, 0.8, 0.8, 0.8)
+                        SequentialAnimation on color {
+                            loops: Animation.Infinite
+                            ColorAnimation { to: Qt.rgba(0.8, 0.2, 0.8, 0.8); duration: 1000 }  // 从2000改为1000
+                            ColorAnimation { to: Qt.rgba(0.8, 0.8, 0.2, 0.8); duration: 1000 }  // 从2000改为1000
+                            ColorAnimation { to: Qt.rgba(0.2, 0.8, 0.8, 0.8); duration: 1000 }  // 从2000改为1000
+                        }
+                    }
+                }
+            }
+
+            // 添加第二层渐变
+            LinearGradient {
+                id: secondGradient
+                anchors.fill: parent
+                visible: true
+                source: gradientMask
+                opacity: 0.5  // 设置透明度使两层效果能够混合
+                
+                start: Qt.point(borderEffect.width, 0)
+                end: Qt.point(0, borderEffect.height)
+                
+                property color currentColor: Qt.rgba(0.8, 0.4, 0.1, 0.8)
+                
+                gradient: Gradient {
+                    GradientStop { 
+                        position: 0.0
+                        color: secondGradient.currentColor
+                        SequentialAnimation on color {
+                            loops: Animation.Infinite
+                            ColorAnimation { 
+                                to: Qt.rgba(0.1, 0.4, 0.8, 0.8)
+                                duration: 1500  // 从3000改为1500
+                                onRunningChanged: if(running) secondGradient.currentColor = Qt.rgba(0.1, 0.4, 0.8, 0.8)
+                            }
+                            ColorAnimation { 
+                                to: Qt.rgba(0.8, 0.1, 0.4, 0.8)
+                                duration: 1500  // 从3000改为1500
+                                onRunningChanged: if(running) secondGradient.currentColor = Qt.rgba(0.8, 0.1, 0.4, 0.8)
+                            }
+                            ColorAnimation { 
+                                to: Qt.rgba(0.8, 0.4, 0.1, 0.8)
+                                duration: 1500  // 从3000改为1500
+                                onRunningChanged: if(running) secondGradient.currentColor = Qt.rgba(0.8, 0.4, 0.1, 0.8)
+                            }
+                        }
+                    }
+                    GradientStop { 
+                        position: 1.0
+                        color: Qt.rgba(0.4, 0.1, 0.8, 0.8)
+                        SequentialAnimation on color {
+                            loops: Animation.Infinite
+                            ColorAnimation { to: Qt.rgba(0.1, 0.8, 0.4, 0.8); duration: 1500 }  // 从3000改为1500
+                            ColorAnimation { to: Qt.rgba(0.4, 0.1, 0.8, 0.8); duration: 1500 }  // 从3000改为1500
+                            ColorAnimation { to: Qt.rgba(0.8, 0.4, 0.1, 0.8); duration: 1500 }  // 从3000改为1500
+                        }
+                    }
+                }
+            }
+        }
+
+        // 发光效果同时混合两层渐变的颜色
+        layer.enabled: true
+        layer.effect: Glow {
+            samples: 8
+            radius: 6
+            color: Qt.rgba(
+                (gradientBorder.currentColor.r + secondGradient.currentColor.r) / 2,
+                (gradientBorder.currentColor.g + secondGradient.currentColor.g) / 2,
+                (gradientBorder.currentColor.b + secondGradient.currentColor.b) / 2,
+                0.8
+            )
+            spread: 0.3
+        }
+    }
+
+    // 主内容区域
+    Rectangle {
+        anchors.fill: parent
+        anchors.margins: 2
+        color: root.color
+        radius: root.radius
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 16
@@ -315,7 +450,7 @@ Rectangle {
             TextArea {
                 id: messageInput
                 Layout.fillWidth: true
-                Layout.preferredHeight: Math.min(contentHeight + 20, 200)
+                Layout.preferredHeight: 44
                 placeholderText: qsTr("Type your message...")
                 placeholderTextColor: "#888"
                 color: "white"
@@ -323,10 +458,7 @@ Rectangle {
                 selectByMouse: true
                 wrapMode: TextArea.Wrap
                 font.pixelSize: 15
-                topPadding: (height - contentHeight) / 2
-                bottomPadding: (height - contentHeight) / 2
-                leftPadding: 10
-                rightPadding: 10
+                padding: 10
                 verticalAlignment: TextArea.AlignVCenter
 
                 background: Rectangle {
