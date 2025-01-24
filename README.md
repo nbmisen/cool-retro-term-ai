@@ -1,3 +1,31 @@
+# cool-retro-term-ai
+
+Based on "cool-retro-term" with added AI capabilities
+
+## New Features
+
+- **AI Integration Panel**
+  - Customizable settings for AI service:
+    - Base URL
+    - Model
+    - API key
+    - System prompt
+  - Toggle AI panel with `Ctrl+Shift+A` / View Menu / Panel Button
+  - Stream output support
+  - Markdown rendering
+  - Copy/paste conversation support
+  - Apple-compliant icons
+  - Native ARM64 support ([reference](https://github.com/charlie0129/cool-retro-term.git))
+
+### AI Chat Panel
+![AI Chat Panel](screenshots/ai-chat-panel.png)
+
+### Settings Panel
+![Settings Panel](screenshots/settings-panel.png)
+
+### Settings Panel
+![App Icon](screenshots/new-app-icon.png)
+
 # cool-retro-term
 
 |> Default Amber|C:\ IBM DOS|$ Default Green|
