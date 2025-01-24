@@ -23,7 +23,7 @@ Based on "cool-retro-term" with added AI capabilities
 ### Settings Panel
 ![Settings Panel](screenshots/settings-panel.png)
 
-### Settings Panel
+### App Icon
 ![App Icon](screenshots/new-app-icon.png)
 
 # cool-retro-term
