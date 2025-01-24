@@ -140,12 +140,20 @@ ApplicationWindow {
             aboutDialog.raise()
         }
     }
+
+    property bool isAIPanelOpen: false
+
     Action {
         id: toggleAIPanelAction
-        text: qsTr("Open AI Panel")
+        text: isAIPanelOpen ? qsTr("Close AI Panel") : qsTr("Open AI Panel")
         shortcut: "Ctrl+Shift+A"
         onTriggered: {
-            width = width + 300
+            if (!isAIPanelOpen) {
+                width = width + 300
+            } else {
+                width = terminalWrapper.height * 4/3
+            }
+            isAIPanelOpen = !isAIPanelOpen
         }
     }
     ApplicationSettings {

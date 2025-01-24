@@ -95,6 +95,7 @@ Rectangle {
                 }
                 onClicked: {
                     terminalWindow.width = terminalWindow.height * 4/3
+                    terminalWindow.isAIPanelOpen = false
                 }
             }
 
