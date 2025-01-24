@@ -126,6 +126,12 @@ ColumnLayout {
                 Layout.fillWidth: true
                 text: appSettings.aiSystemPrompt
                 wrapMode: TextEdit.Wrap
+                selectByMouse: true
+                Keys.onPressed: (event) => {
+                    if ((event.key === Qt.Key_A) && (event.modifiers & Qt.ControlModifier)) {
+                        systemPromptField.selectAll()
+                    }
+                }
                 onTextChanged: {
                     storage.setSetting("aiSystemPrompt", text)
                     appSettings.aiSystemPrompt = text
