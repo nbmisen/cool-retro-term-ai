@@ -25,6 +25,7 @@
         <file>SettingsAITab.qml</file>
         <file>AIChat.qml</file>
         <file>ChatPanel.qml</file>
+        <file>GradientBorderEffect.qml</file>
         <file>TerminalContainer.qml</file>
         <file>images/crt256.png</file>
         <file>utils.js</file>
