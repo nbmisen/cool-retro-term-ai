@@ -30,7 +30,7 @@ Rectangle {
         }
         onErrorOccurred: function(error) {
             chatView.model.append({
-                message: "❌ " + error,
+                message: "❌ " + error + "\n\n" + qsTr("You can try sending the message again."),
                 streamContent: "",
                 isUser: false,
                 isMarkdown: true
@@ -192,132 +192,171 @@ Rectangle {
             }
         }
 
-        ListView {
-            id: chatView
+        // ListView with ScrollBar
+        Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            clip: true
-            spacing: 8
-            model: ListModel {}
-            
-            // 根据消息类型选择不同的delegate
-            delegate: Loader {
-                width: chatView.width
-                sourceComponent: model.isUser ? userMessageDelegate : aiMessageDelegate
-                property var messageData: model
-            }
 
-            // 用户消息delegate
-            Component {
-                id: userMessageDelegate
-                Rectangle {
+            ListView {
+                id: chatView
+                anchors.fill: parent
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                spacing: 8
+                model: ListModel {}
+
+                // 根据消息类型选择不同的delegate
+                delegate: Loader {
                     width: chatView.width
-                    height: userMessageText.height + 24
-                    color: "#404040"
-                    radius: 8
-                    layer.enabled: true
-                    layer.effect: DropShadow {
-                        color: "#20000000"
-                        radius: 6
-                        samples: 13
-                        verticalOffset: 2
-                    }
+                    sourceComponent: model.isUser ? userMessageDelegate : aiMessageDelegate
+                    property var messageData: model
+                }
 
-                    TextEdit {
-                        id: userMessageText
-                        text: messageData.message
-                        color: "white"
-                        width: parent.width - 24
-                        anchors.centerIn: parent
-                        wrapMode: Text.WordWrap
-                        font.pixelSize: 15
-                        textFormat: Text.MarkdownText
-                        selectByMouse: true
-                        selectedTextColor: "white"
-                        selectionColor: "#666666"
-                        mouseSelectionMode: TextEdit.SelectCharacters
-                        persistentSelection: false
-
-                        Menu {
-                            id: userContextMenu
-                            MenuItem {
-                                text: qsTr("Copy")
-                                enabled: userMessageText.selectedText
-                                onTriggered: userMessageText.copy()
-                            }
-                            MenuItem {
-                                text: qsTr("Select All")
-                                onTriggered: userMessageText.selectAll()
-                            }
+                // 用户消息delegate
+                Component {
+                    id: userMessageDelegate
+                    Rectangle {
+                        width: chatView.width
+                        height: userMessageText.contentHeight + 24
+                        color: "#404040"
+                        radius: 8
+                        layer.enabled: true
+                        layer.effect: DropShadow {
+                            color: "#20000000"
+                            radius: 6
+                            samples: 13
+                            verticalOffset: 2
                         }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            acceptedButtons: Qt.RightButton
-                            hoverEnabled: true
-                            onClicked: {
-                                if (mouse.button === Qt.RightButton)
-                                    userContextMenu.popup()
+                        TextEdit {
+                            id: userMessageText
+                            text: messageData.message
+                            color: "white"
+                            width: parent.width - 24
+                            anchors.centerIn: parent
+                            wrapMode: Text.WordWrap
+                            font.pixelSize: 15
+                            textFormat: Text.MarkdownText
+                            selectByMouse: true
+                            selectedTextColor: "white"
+                            selectionColor: "#666666"
+                            mouseSelectionMode: TextEdit.SelectCharacters
+                            persistentSelection: false
+
+                            Menu {
+                                id: userContextMenu
+                                MenuItem {
+                                    text: qsTr("Copy")
+                                    enabled: userMessageText.selectedText
+                                    onTriggered: userMessageText.copy()
+                                }
+                                MenuItem {
+                                    text: qsTr("Select All")
+                                    onTriggered: userMessageText.selectAll()
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                acceptedButtons: Qt.RightButton
+                                hoverEnabled: true
+                                onClicked: {
+                                    if (mouse.button === Qt.RightButton)
+                                        userContextMenu.popup()
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            // AI消息delegate
-            Component {
-                id: aiMessageDelegate
-                Rectangle {
-                    width: chatView.width
-                    height: markdownMessageText.height + 24
-                    color: "#2d2d30"
-                    radius: 8
-                    layer.enabled: true
-                    layer.effect: DropShadow {
-                        color: "#20000000"
-                        radius: 6
-                        samples: 13
-                        verticalOffset: 2
+                // AI消息delegate
+                Component {
+                    id: aiMessageDelegate
+                    Rectangle {
+                        width: chatView.width
+                        height: markdownMessageText.contentHeight + 24
+                        color: "#2d2d30"
+                        radius: 8
+                        layer.enabled: true
+                        layer.effect: DropShadow {
+                            color: "#20000000"
+                            radius: 6
+                            samples: 13
+                            verticalOffset: 2
+                        }
+
+                        // Markdown文本显示
+                        TextEdit {
+                            id: markdownMessageText
+                            text: messageData.streamContent
+                            color: "#e1e1e1"
+                            width: parent.width - 24
+                            anchors.centerIn: parent
+                            wrapMode: Text.WordWrap
+                            font.pixelSize: 15
+                            textFormat: Text.MarkdownText
+                            selectByMouse: true
+                            selectedTextColor: "white"
+                            selectionColor: "#666666"
+                            mouseSelectionMode: TextEdit.SelectCharacters
+                            persistentSelection: false
+
+                            Menu {
+                                id: markdownContextMenu
+                                MenuItem {
+                                    text: qsTr("Copy")
+                                    enabled: markdownMessageText.selectedText
+                                    onTriggered: markdownMessageText.copy()
+                                }
+                                MenuItem {
+                                    text: qsTr("Select All")
+                                    onTriggered: markdownMessageText.selectAll()
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                acceptedButtons: Qt.RightButton
+                                hoverEnabled: true
+                                onClicked: {
+                                    if (mouse.button === Qt.RightButton)
+                                        markdownContextMenu.popup()
+                                }
+                            }
+                        }
                     }
+                }
 
-                    // Markdown文本显示
-                    TextEdit {
-                        id: markdownMessageText
-                        text: messageData.streamContent
-                        color: "#e1e1e1"
-                        width: parent.width - 24
-                        anchors.centerIn: parent
-                        wrapMode: Text.WordWrap
-                        font.pixelSize: 15
-                        textFormat: Text.MarkdownText
-                        selectByMouse: true
-                        selectedTextColor: "white"
-                        selectionColor: "#666666"
-                        mouseSelectionMode: TextEdit.SelectCharacters
-                        persistentSelection: false
+                // 添加缓存属性提高性能
+                cacheBuffer: height * 2
+                displayMarginBeginning: height
+                displayMarginEnd: height
+                
+                // 优化滚动性能
+                reuseItems: true
 
-                        Menu {
-                            id: markdownContextMenu
-                            MenuItem {
-                                text: qsTr("Copy")
-                                enabled: markdownMessageText.selectedText
-                                onTriggered: markdownMessageText.copy()
-                            }
-                            MenuItem {
-                                text: qsTr("Select All")
-                                onTriggered: markdownMessageText.selectAll()
-                            }
+                // 添加滚动条
+                ScrollBar.vertical: ScrollBar {
+                    id: vbar
+                    active: chatView.moving || chatView.flicking
+                    policy: ScrollBar.AsNeeded
+                    
+                    contentItem: Rectangle {
+                        implicitWidth: 6
+                        implicitHeight: 100
+                        radius: width / 2
+                        color: vbar.pressed ? "#888" : "#666"
+                        opacity: vbar.active ? 0.8 : 0
+                        
+                        Behavior on opacity {
+                            NumberAnimation { duration: 200 }
                         }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            acceptedButtons: Qt.RightButton
-                            hoverEnabled: true
-                            onClicked: {
-                                if (mouse.button === Qt.RightButton)
-                                    markdownContextMenu.popup()
-                            }
-                        }
+                    }
+                    
+                    background: Rectangle {
+                        implicitWidth: 6
+                        color: "transparent"
                     }
                 }
             }
@@ -338,8 +377,6 @@ Rectangle {
                 selectByMouse: true
                 wrapMode: TextArea.Wrap
                 font.pixelSize: 15
-                topPadding: (height - contentHeight) / 2
-                bottomPadding: (height - contentHeight) / 2
                 leftPadding: 10
                 rightPadding: 10
                 verticalAlignment: TextArea.AlignVCenter

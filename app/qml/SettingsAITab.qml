@@ -45,6 +45,12 @@ ColumnLayout {
                 id: baseUrlField
                 Layout.fillWidth: true
                 text: appSettings.aiBaseUrl
+                selectByMouse: true
+                Keys.onPressed: (event) => {
+                    if ((event.key === Qt.Key_A) && (event.modifiers & Qt.ControlModifier)) {
+                        baseUrlField.selectAll()
+                    }
+                }
                 onEditingFinished: {
                     storage.setSetting("aiBaseUrl", text)
                     appSettings.aiBaseUrl = text
@@ -59,6 +65,12 @@ ColumnLayout {
                 id: modelNameField
                 Layout.fillWidth: true
                 text: appSettings.aiModelName
+                selectByMouse: true
+                Keys.onPressed: (event) => {
+                    if ((event.key === Qt.Key_A) && (event.modifiers & Qt.ControlModifier)) {
+                        modelNameField.selectAll()
+                    }
+                }
                 onEditingFinished: {
                     storage.setSetting("aiModelName", text)
                     appSettings.aiModelName = text
@@ -74,6 +86,12 @@ ColumnLayout {
                 Layout.fillWidth: true
                 text: appSettings.aiApiKey
                 echoMode: TextInput.Password
+                selectByMouse: true
+                Keys.onPressed: (event) => {
+                    if ((event.key === Qt.Key_A) && (event.modifiers & Qt.ControlModifier)) {
+                        apiKeyField.selectAll()
+                    }
+                }
                 onEditingFinished: {
                     storage.setSetting("aiApiKey", text)
                     appSettings.aiApiKey = text
