@@ -22,6 +22,7 @@ Rectangle {
         onMessageReceived: function(message) {
             chatView.model.append({
                 message: message,
+                streamContent: "",
                 isUser: false,
                 isMarkdown: true
             })
@@ -30,6 +31,7 @@ Rectangle {
         onErrorOccurred: function(error) {
             chatView.model.append({
                 message: "❌ " + error,
+                streamContent: "",
                 isUser: false,
                 isMarkdown: true
             })
@@ -38,20 +40,23 @@ Rectangle {
         onStreamUpdate: function(content) {
             if (chatView.model.count === 0 || chatView.model.get(chatView.model.count - 1).isUser) {
                 chatView.model.append({
-                    message: content,
+                    message: "",
+                    streamContent: content,
                     isUser: false,
                     isMarkdown: false
                 })
             } else {
                 var lastIndex = chatView.model.count - 1
-                var currentMessage = chatView.model.get(lastIndex).message
-                chatView.model.setProperty(lastIndex, "message", currentMessage + content)
+                var currentContent = chatView.model.get(lastIndex).streamContent
+                chatView.model.setProperty(lastIndex, "streamContent", currentContent + content)
             }
             chatView.positionViewAtEnd()
         }
         onStreamEnd: function() {
-            if (chatView.model.count > 0) {
-                var lastIndex = chatView.model.count - 1
+            var lastIndex = chatView.model.count - 1
+            if (!aiChat.isProcessing && lastIndex >= 0) {
+                var item = chatView.model.get(lastIndex)
+                chatView.model.setProperty(lastIndex, "message", item.streamContent)
                 chatView.model.setProperty(lastIndex, "isMarkdown", true)
             }
         }
@@ -179,88 +184,151 @@ Rectangle {
             clip: true
             spacing: 8
             model: ListModel {}
-            delegate: Rectangle {
+            
+            // 根据消息类型选择不同的delegate
+            delegate: Loader {
                 width: chatView.width
-                height: messageText.height + 24
-                color: model.isUser ? "#404040" : "#2d2d30"
-                radius: 8
-                layer.enabled: true
-                layer.effect: DropShadow {
-                    color: "#20000000"
-                    radius: 6
-                    samples: 13
-                    verticalOffset: 2
-                }
-                
-                TextEdit {
-                    id: messageText
-                    text: model.message
-                    color: model.isUser ? "white" : "#e1e1e1"
-                    width: parent.width - 24
-                    anchors.centerIn: parent
-                    wrapMode: Text.WordWrap
-                    font.pixelSize: 15
-                    textFormat: model.isMarkdown ? Text.MarkdownText : Text.PlainText
-                    selectByMouse: true
-                    selectedTextColor: "white"
-                    selectionColor: "#666666"
-                    mouseSelectionMode: TextEdit.SelectCharacters
-                    persistentSelection: false
+                sourceComponent: model.isUser ? userMessageDelegate : aiMessageDelegate
+                property var messageData: model
+            }
 
-                    // 防止用户直接编辑
-                    onTextChanged: {
-                        if (text !== model.message) {
-                            text = model.message
-                        }
+            // 用户消息delegate
+            Component {
+                id: userMessageDelegate
+                Rectangle {
+                    width: chatView.width
+                    height: userMessageText.height + 24
+                    color: "#404040"
+                    radius: 8
+                    layer.enabled: true
+                    layer.effect: DropShadow {
+                        color: "#20000000"
+                        radius: 6
+                        samples: 13
+                        verticalOffset: 2
                     }
 
-                    // 添加右键菜单
-                    Menu {
-                        id: contextMenu
-                        MenuItem {
-                            text: qsTr("Copy")
-                            enabled: messageText.selectedText
-                            onTriggered: {
-                                messageText.copy();
+                    TextEdit {
+                        id: userMessageText
+                        text: messageData.message
+                        color: "white"
+                        width: parent.width - 24
+                        anchors.centerIn: parent
+                        wrapMode: Text.WordWrap
+                        font.pixelSize: 15
+                        textFormat: Text.MarkdownText
+                        selectByMouse: true
+                        selectedTextColor: "white"
+                        selectionColor: "#666666"
+                        mouseSelectionMode: TextEdit.SelectCharacters
+                        persistentSelection: false
+
+                        Menu {
+                            id: userContextMenu
+                            MenuItem {
+                                text: qsTr("Copy")
+                                enabled: userMessageText.selectedText
+                                onTriggered: userMessageText.copy()
+                            }
+                            MenuItem {
+                                text: qsTr("Select All")
+                                onTriggered: userMessageText.selectAll()
                             }
                         }
-                        MenuItem {
-                            text: qsTr("Select All")
-                            onTriggered: messageText.selectAll()
-                        }
-                    }
 
-                    MouseArea {
-                        anchors.fill: parent
-                        acceptedButtons: Qt.RightButton
-                        hoverEnabled: true
-                        onClicked: {
-                            if (mouse.button === Qt.RightButton)
-                                contextMenu.popup()
+                        MouseArea {
+                            anchors.fill: parent
+                            acceptedButtons: Qt.RightButton
+                            hoverEnabled: true
+                            onClicked: {
+                                if (mouse.button === Qt.RightButton)
+                                    userContextMenu.popup()
+                            }
                         }
-                        onPressAndHold: contextMenu.popup()
-                        cursorShape: Qt.IBeamCursor
                     }
                 }
             }
 
-            ScrollBar.vertical: ScrollBar {}
+            // AI消息delegate
+            Component {
+                id: aiMessageDelegate
+                Rectangle {
+                    width: chatView.width
+                    height: markdownMessageText.height + 24
+                    color: "#2d2d30"
+                    radius: 8
+                    layer.enabled: true
+                    layer.effect: DropShadow {
+                        color: "#20000000"
+                        radius: 6
+                        samples: 13
+                        verticalOffset: 2
+                    }
+
+                    // Markdown文本显示
+                    TextEdit {
+                        id: markdownMessageText
+                        text: messageData.streamContent
+                        color: "#e1e1e1"
+                        width: parent.width - 24
+                        anchors.centerIn: parent
+                        wrapMode: Text.WordWrap
+                        font.pixelSize: 15
+                        textFormat: Text.MarkdownText
+                        selectByMouse: true
+                        selectedTextColor: "white"
+                        selectionColor: "#666666"
+                        mouseSelectionMode: TextEdit.SelectCharacters
+                        persistentSelection: false
+
+                        Menu {
+                            id: markdownContextMenu
+                            MenuItem {
+                                text: qsTr("Copy")
+                                enabled: markdownMessageText.selectedText
+                                onTriggered: markdownMessageText.copy()
+                            }
+                            MenuItem {
+                                text: qsTr("Select All")
+                                onTriggered: markdownMessageText.selectAll()
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            acceptedButtons: Qt.RightButton
+                            hoverEnabled: true
+                            onClicked: {
+                                if (mouse.button === Qt.RightButton)
+                                    markdownContextMenu.popup()
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         RowLayout {
             Layout.fillWidth: true
             spacing: 5
 
-            TextField {
+            TextArea {
                 id: messageInput
                 Layout.fillWidth: true
-                Layout.preferredHeight: 40
+                Layout.preferredHeight: Math.min(contentHeight + 20, 200)
                 placeholderText: qsTr("Type your message...")
                 placeholderTextColor: "#888"
                 color: "white"
                 enabled: !aiChat.isProcessing
                 selectByMouse: true
+                wrapMode: TextArea.Wrap
                 font.pixelSize: 15
+                topPadding: (height - contentHeight) / 2
+                bottomPadding: (height - contentHeight) / 2
+                leftPadding: 10
+                rightPadding: 10
+                verticalAlignment: TextArea.AlignVCenter
+
                 background: Rectangle {
                     color: "#2d2d30"
                     radius: 8
@@ -268,23 +336,41 @@ Rectangle {
                     border.width: 1
                 }
 
-                // 添加键盘快捷键
+                // 处理所有按键事件
                 Keys.onPressed: function(event) {
+                    // Ctrl+A / Cmd+A 全选
                     if ((event.key === Qt.Key_A) && (event.modifiers & Qt.ControlModifier || event.modifiers & Qt.MetaModifier)) {
                         messageInput.selectAll();
                         event.accepted = true;
+                        return;
                     }
-                }
-
-                onAccepted: {
-                    if (text.trim() !== "") {
-                        chatView.model.append({
-                            message: text,
-                            isUser: true
-                        })
-                        chatView.positionViewAtEnd()
-                        aiChat.sendMessage(text)
-                        text = ""
+                    
+                    // Enter键处理
+                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                        event.accepted = true;
+                        
+                        // Shift+Enter插入换行
+                        if (event.modifiers & Qt.ShiftModifier) {
+                            var pos = cursorPosition;
+                            var beforeText = text.substring(0, pos);
+                            var afterText = text.substring(pos);
+                            text = beforeText + "\n" + afterText;
+                            cursorPosition = pos + 1;
+                        } 
+                        // 普通Enter发送消息
+                        else {
+                            if (text.trim() !== "") {
+                                chatView.model.append({
+                                    message: text,
+                                    streamContent: "",
+                                    isUser: true,
+                                    isMarkdown: false
+                                })
+                                chatView.positionViewAtEnd()
+                                aiChat.sendMessage(text)
+                                text = ""
+                            }
+                        }
                     }
                 }
             }
@@ -395,7 +481,9 @@ Rectangle {
                     if (messageInput.text.trim() !== "") {
                         chatView.model.append({
                             message: messageInput.text,
-                            isUser: true
+                            streamContent: "",
+                            isUser: true,
+                            isMarkdown: false
                         })
                         chatView.positionViewAtEnd()
                         aiChat.sendMessage(messageInput.text)
