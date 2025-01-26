@@ -167,7 +167,8 @@ ApplicationWindow {
         Item {
             id: terminalWrapper
             Layout.fillHeight: true
-            Layout.preferredWidth: height * 4/3
+            Layout.fillWidth: !isAIPanelOpen
+            Layout.preferredWidth: isAIPanelOpen ? height * 4/3 : undefined
             Layout.minimumWidth: 300
             
             TerminalContainer {
@@ -177,6 +178,7 @@ ApplicationWindow {
         }
 
         ChatPanel {
+            visible: isAIPanelOpen
             Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.minimumWidth: 200
